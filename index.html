@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriWeather</title>
+    
+    <!-- Estilos -->
+    <link rel="icon" type="image/png" href="assets/icons/icono agricultura.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css">
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+
+    <!-- Leaflet.js -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+
+    <!-- Buttons para exportar -->
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+
+    <!-- tensorflow -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+
+
+    <!-- Script principal -->
+    <script type="module" src="./js/app.js"></script>
+</head>
+
+<body>
+    <!-- mensaje oculto para alertas -->
+    <h4 id="message" class="text-center text-danger fw-bold" style="display:none;"></h4>
+
+    <!-- sección de Inicio de Sesión -->
+    <div id="login-container" class="vh-100 d-flex justify-content-center align-items-center bg-login">
+        <div class="card p-4 shadow-lg">
+            <h2 class="text-center mb-3 fw-bold">Bienvenido a AgriWeather</h2>
+            <h5 style="text-align: center;">Tu aliado en el tiempo y la agricultura ☁️</h5>
+            <form id="login-form">
+                <div class="mb-3">
+                    <label for="email-input" class="form-label fw-semibold">Correo Electrónico</label>
+                    <input type="email" class="form-control" id="email-input" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password-input" class="form-label fw-semibold">Contraseña</label>
+                    <input type="password" class="form-control" id="password-input" required>
+                </div>
+                <button type="submit" class="btn btn-green w-100 fw-bold">Iniciar Sesión</button>
+                <button type="button" id="recover-password" class="btn btn-green w-100">Recuperar Contraseña</button>
+                <button type="button" id="register" class="btn btn-green w-100">Registrarse</button>                
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- contenido Principal (Oculto hasta iniciar sesión) -->
+    <div id="main-container" class="container-fluid d-none">
+        <header class="text-center py-4 text-white bg-header">
+            <h2 class="fw-bold">AgriWeather: Monitoreo Inteligente del Clima ☁️</h2>
+        </header>
+        
+        <!-- sección de Ubicación y clima Actual -->
+        <section id="current-weather" class="container my-4">
+            <h3 class="text-center fw-semibold">Tu Ubicación y Clima Actual</h3>
+            <div id="map" class="map-container border rounded shadow-sm"></div>
+            <p class="text-center mt-3 fw-medium">
+                Latitud: <span id="latitude"></span> | Longitud: <span id="longitude"></span>
+            </p>
+            <div class="weather-info text-center bg-light p-3 rounded shadow-sm">
+                <p class="fw-bold">Temperatura: <span id="temperature"></span>°C</p>
+                <p>Temperatura Mínima: <span id="temp-min"></span>°C</p>
+                <p>Temperatura Máxima: <span id="temp-max"></span>°C</p>
+                <p>Humedad: <span id="humidity"></span>%</p>
+                <p>Precipitaciones: <span id="precipitation"></span> mm</p>
+                <p>Viento: <span id="wind-speed"></span> km/h</p>
+            </div>
+        </section>
+        
+        <!-- Sección de Clima Histórico -->
+        <section id="historical-weather" class="container my-4">
+            <h2 class="text-center fw-bold">Historial Climático</h2>
+            <h4 class="text-center text-muted">Consulta el clima en distintas ubicaciones y accede a datos históricos.</h4>
+            <br>
+            <!-- Formulario para ingresar la ciudad -->
+            <div class="row justify-content-center mb-3">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <input type="text" id="inputCiudad" placeholder="Ingrese una ciudad">
+                        <button id="btnAgregarCiudad" class="btn btn-primary">Agregar Ciudad</button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select id="inputAño"></select>
+                </div>
+            </div>
+            
+            <!-- Contenedor donde se generará la tabla dinámicamente -->
+            <div class="table-responsive">
+                <table id="tablaHistorial" class="table table-striped text-center" style="display: none;"></table>
+            </div>
+            <div class="mt-5">
+                <canvas id="grafico-info"></canvas>
+            </div>
+        </section>
+         
+        <!-- Sección de Captura de Imágenes -->
+        <section id="camera-section" class="container my-4">
+            <h2 class="text-center fw-bold">¡Captura Imágenes!</h2>
+            <div class="d-flex justify-content-center gap-3 mt-4">
+                <button id="startFrontCamera" class="btn btn-success">Cámara Delantera</button>
+                <button id="startRearCamera" class="btn btn-danger">Cámara Trasera</button>
+                <button id="capturePhoto" class="btn btn-primary">Capturar Foto</button>
+            </div>
+            <div id="video-container" class="text-center mt-4">
+                <video id="video" autoplay class="border border-success rounded"></video>
+            </div>
+            <div id="canvas-container" class="text-center mt-4" style="display:none;">
+                <canvas id="canvas"></canvas>
+                <img id="captured-photo" alt="Foto Capturada" class="mt-3 border rounded shadow-sm"/>
+            </div>
+        </section>
+
+                <!-- Sección de Predicción Inteligente -->
+                <section id="prediction-section" class="container my-4">
+                    <h2 class="text-center text-primary fw-bold">Predicción de Contenido Agroclimático</h2>
+                    <h5 class="text-center mt-2 text-muted">Usamos la potencia de la Inteligencia Artificial para identificar maíz en las imágenes que proporcionas.</h5>
+                    <div class="prediction-container text-center mt-4">
+                        <h5 id="prediction-result">¡Sube una imagen para conocer el resultado!</h5>
+                    </div>
+                </section>
+
+        <!-- Sección de Selección de Imagen -->
+        <section id="image-upload-section" class="container my-4">
+            <h2 class="text-center fw-bold">Selecciona una Imagen de tu Dispositivo</h2>
+            <div class="text-center mt-4">
+                <input type="file" id="upload-image" class="form-control" accept="image/*">
+            </div>
+            <div class="image-container text-center mt-4">
+                <img id="uploaded-image" alt="Imagen Subida" class="border rounded shadow-sm" style="display:none;"/>
+            </div>
+        </section>
+
+        <!-- Botón de Cerrar Sesión -->
+        <div class="d-flex justify-content-center mt-5">
+            <button id="logout-btn" class="btn btn-danger fw-bold px-4 py-2 d-none">Cerrar sesión</button>
+        </div>
+    </div>
+</body>
+
+
+

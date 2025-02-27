@@ -1,0 +1,26 @@
+
+
+Infome sobre la creación y estrategias tomadas para la aplicación AgriWeather
+
+Sus principales funcionalidades incluyen autenticación de usuarios, geolocalización, información meteorológica, análisis de datos climáticos e inteligencia artificial para la identificación de maíz en imágenes.
+
+
+Se optó por Firebase para la autenticación, Leaflet.js para la visualización de mapas, OpenMeteo para los datos climáticos, DataTables.js para la organización de información y TensorFlow.js para el análisis de imágenes, Se implementó un diseño intuitivo y minimalista, asegurando una navegación fluida y adaptada a dispositivos móviles para su uso en campo.
+Se diseñó un flujo eficiente para la recuperación y visualización de datos, permitiendo consultas de clima históricas por ciudad y año, con representación en gráficos dinámicos mediante Chart.js.
+
+Dificultades y soluciones:
+Cargas Lentas en Geolocalización: La obtención de la ubicación presentaba retrasos debido a problemas de permisos y la carga de mapas. Se optimizó la integración con Leaflet.js y se implementó una precarga de datos para mejorar la respuesta y evitar esperas innecesarias.
+
+Visualización de Datos Climáticos: Manejar grandes volúmenes de información de manera eficiente fue un desafío. Se implementaron filtros avanzados y paginación con DataTables.js para organizar los datos de manera más accesible y mejorar el rendimiento de la aplicación.
+
+Precisión en el Reconocimiento de Maíz: Inicialmente, la detección de maíz tenía un margen de error considerable debido a la calidad de las imágenes y la falta de entrenamiento del modelo. Se mejoró el entrenamiento del modelo de TensorFlow.js, optimizando la preprocesación de imágenes y permitiendo que el usuario seleccione fotos de mejor calidad para obtener mejores resultados.
+
+
+
+
+
+
+
+
+
+
